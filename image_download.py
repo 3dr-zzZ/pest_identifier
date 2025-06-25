@@ -19,14 +19,14 @@ with open("species.txt", "r") as f:
         species_list.append(line.strip())
 
 def download_images_for_species(species_name):
-    print(f"\n🔍 Fetching: {species_name}")
+    print(f"\nFetching: {species_name}")
     encoded_name = quote(species_name)
     url = f"https://api.inaturalist.org/v1/observations?taxon_name={encoded_name}&per_page={IMAGES_PER_SPECIES}&order=desc&order_by=created_at"
 
     try:
         response = requests.get(url)
         if response.status_code != 200:
-            print(f"❌ Failed to fetch data for {species_name}")
+            print(f"Failed to fetch data for {species_name}")
             return
 
         data = response.json()
@@ -40,16 +40,16 @@ def download_images_for_species(species_name):
                 filename = os.path.join(save_folder, f"{species_name.replace(' ', '_')}_{i}_{j}.jpg")
                 try:
                     urlretrieve(img_url, filename)
-                    print(f"✅ Saved: {filename}")
+                    print(f"Saved: {filename}")
                     count += 1
                 except Exception as e:
-                    print(f"⚠️ Error downloading {img_url}: {e}")
+                    print(f"Error downloading {img_url}: {e}")
             time.sleep(0.1)  # 避免请求过快被限速
 
         print(f"📦 Done: {count} images saved for {species_name}")
 
     except Exception as e:
-        print(f"⚠️ Error fetching data for {species_name}: {e}")
+        print(f"Error fetching data for {species_name}: {e}")
 
 # 逐个处理每个物种
 for species in species_list:
