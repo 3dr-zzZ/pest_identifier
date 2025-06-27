@@ -7,14 +7,14 @@ import time
 
 #####配置#####
 IMAGES_PER_SPECIES = 3  # 每个物种下载的观察记录数
-output_dir = "dataset"
+output_dir = "dataset//download"
 #############
 
 os.makedirs(output_dir, exist_ok=True)  # 创建总文件夹
 
 # 输入：抓取的物种学名
 species_list = []
-with open("species.txt", "r") as f:
+with open("classes.txt", "r") as f:
     for line in f:
         species_list.append(line.strip())
 
@@ -46,7 +46,7 @@ def download_images_for_species(species_name):
                     print(f"Error downloading {img_url}: {e}")
             time.sleep(0.1)  # 避免请求过快被限速
 
-        print(f"📦 Done: {count} images saved for {species_name}")
+        print(f"Done: {count} images saved for {species_name}")
 
     except Exception as e:
         print(f"Error fetching data for {species_name}: {e}")

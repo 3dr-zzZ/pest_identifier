@@ -3,7 +3,7 @@ import json
 
 # ====== 文件路径 ======
 INPUT_JSON_PATH = 'dataset/train_mini.json'  # 标签 JSON 文件
-SPECIES_TXT_PATH = 'species.txt'  # 需要提取的物种名列表
+SPECIES_TXT_PATH = 'classes.txt'  # 需要提取的物种名列表
 OUTPUT_JSON_PATH = 'dataset/train_extracted.json'
 # =======================
 
