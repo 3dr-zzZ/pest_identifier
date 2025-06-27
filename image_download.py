@@ -14,7 +14,7 @@ os.makedirs(output_dir, exist_ok=True)  # 创建总文件夹
 
 # 输入：抓取的物种学名
 species_list = []
-with open("classes.txt", "r") as f:
+with open("species.txt", "r") as f:
     for line in f:
         species_list.append(line.strip())
 
