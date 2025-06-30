@@ -4,6 +4,7 @@ import os
 from urllib.parse import quote
 from urllib.request import urlretrieve
 import time
+from tqdm import tqdm  # type: ignore
 
 #####配置#####
 IMAGES_PER_SPECIES = 1  # 每个物种下载的观察记录数
@@ -14,9 +15,11 @@ os.makedirs(output_dir, exist_ok=True)  # 创建总文件夹
 
 # 输入：抓取的物种学名
 species_list = []
-with open("classes.txt", "r") as f:
+with open("classes.txt", "r", encoding="utf-8") as f:
     for line in f:
-        species_list.append(line.strip())
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#"):
+            species_list.append(stripped)
 
 metadata_list = []
 
@@ -72,8 +75,9 @@ def download_images_for_species(species_name):
     except Exception as e:
         print(f"Error fetching data for {species_name}: {e}")
 
-# 逐个处理每个物种
-for species in species_list:
+# 逐个处理每个物种，带进度条
+for idx, species in enumerate(tqdm(species_list, desc="Fetching species", unit="species")):
+    print(f"Fetching {idx+1} out of {len(species_list)} species: {species}")
     download_images_for_species(species)
 
 # 最终统一保存所有物种的元数据
