@@ -7,6 +7,14 @@ CREATE TABLE "species" (
     PRIMARY KEY("id")
 )
 
+CREATE TABLE "taxonomies" (
+    "id"            INTEGER,
+    "name"          TEXT UNIQUE,
+    "chinese_name"  TEXT UNIQUE,
+    "type"          NOT NULL CHECK("type" IN 'phylum', 'class', 'order', 'family', 'genus')
+    PRIMARY KEY("id")
+)
+
 CREATE TABLE "diseases" (
     "id"        INTEGER,
     "name"      TEXT NOT NULL UNIQUE,
@@ -17,7 +25,7 @@ CREATE TABLE "diseases" (
 CREATE TABLE "locations" (
     "id"       INTEGER,
     "name"     TEXT NOT NULL UNIQUE,
-    "type"     TEXT NOT NULL CHECK("type" IN ('city', 'country', 'region')),
+    "type"     TEXT NOT NULL CHECK("type" IN ('province', 'country', 'region')),
     PRIMARY KEY("id")
 )
 
@@ -27,11 +35,11 @@ CREATE TABLE "controls" (  -- 虫害控制措施
     "description" TEXT
 );
 
-CREATE TABLE references (
+CREATE TABLE "references" (
     "id"        INTEGER PRIMARY KEY,
     "citation"  TEXT,
     "url"       TEXT,
-    year      INTEGER
+    "year"      INTEGER
 );
 
 CREATE TABLE "medias" (
@@ -46,6 +54,14 @@ CREATE TABLE "medias" (
 
 
 -- Joint tables
+CREATE TABLE "belongs"(
+    "species_id"  INTEGER,
+    "taxonomy_id" INTEGER,
+    PRIMARY KEY("species_id", "taxonomy_id"),
+    FOREIGN KEY("species_id") REFERENCES "species"("id") ON DELETE CASCADE,
+    FOREIGN KEY("taxonomy_id") REFERENCES "taxonomies"("id") ON DELETE CASCADE
+)
+
 CREATE TABLE "distributed"(
     "species_id"  INTEGER,
     "location_id" INTEGER,
