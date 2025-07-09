@@ -1,4 +1,3 @@
-
 """inference.py
 Minimal command‑line helper to apply your fine‑tuned PyTorch image‑classification
 model to one or more new images.
@@ -46,14 +45,20 @@ def predict_one(
     transform: transforms.Compose,
     class_map: dict[str, str],
     device: str = "cpu",
-) -> tuple[str, float]:
-    """Return *(label, confidence)* for a single image."""
+    topk: int = 1,
+) -> list[tuple[str, float]]:
+    """Return a list of *(label, confidence)* tuples for the top‑``k`` predictions."""
     image = Image.open(image_path).convert("RGB")
     tensor = transform(image).unsqueeze(0).to(device)
     logits = model(tensor)
     probs = torch.softmax(logits, dim=1).squeeze(0)
-    conf, idx = probs.max(dim=0)
-    return class_map[str(idx.item())], conf.item()
+
+    # pick the top‑k predictions
+    confs, indices = probs.topk(topk)
+    return [
+        (class_map[str(idx.item())], conf.item())
+        for conf, idx in zip(confs, indices)
+    ]
 
 
 def main() -> None:
@@ -67,6 +72,10 @@ def main() -> None:
         default="classes.json",
         help="Path to JSON mapping of class indices to labels (e.g. {\"0\": \"cat\"})",
     )
+    parser.add_argument(
+        "--topk", "-k", type=int, default=1,
+        help="Number of top predictions to return (default: 1)",
+    )
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -77,8 +86,11 @@ def main() -> None:
         class_map = json.load(f)
 
     for img in args.image:
-        label, conf = predict_one(img, model, transform, class_map, device)
-        print(f"{Path(img).name}: {label}  (confidence={conf:.2%})")
+        label_confs = predict_one(
+            img, model, transform, class_map, device, args.topk
+        )
+        pairs = [f"{lbl} (confidence={conf:.2%})" for lbl, conf in label_confs]
+        print(f"{Path(img).name}: " + ", ".join(pairs))
 
 
 if __name__ == "__main__":  # pragma: no cover
