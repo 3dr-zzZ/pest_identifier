@@ -14,11 +14,33 @@ from pathlib import Path
 import torch
 from PIL import Image
 from torchvision import transforms
+import timm
 
 
-def load_model(model_path: str | Path, device: str = "cpu") -> torch.nn.Module:
-    """Load a serialized ``.pth`` model checkpoint (``torch.save``)."""
-    model = torch.load(model_path, map_location=device)
+def load_model(
+    model_path: str | Path,
+    num_classes: int,
+    device: str = "cpu",
+    arch: str = "convnext_tiny.in12k",
+) -> torch.nn.Module:
+    """
+    Rebuild the network architecture with timm, then load either a full
+    serialized model *or* a plain state‑dict saved via ``model.state_dict()``.
+    """
+    checkpoint = torch.load(model_path, map_location=device)
+
+    # Case 1 ‑ the file already contains a full nn.Module object
+    if isinstance(checkpoint, torch.nn.Module):
+        model = checkpoint
+
+    # Case 2 ‑ the file is a state‑dict (what we saved during training)
+    else:
+        model = timm.create_model(
+            arch, pretrained=False, num_classes=num_classes
+        )
+        model.load_state_dict(checkpoint, strict=True)
+
+    model.to(device)
     model.eval()
     return model
 
@@ -79,11 +101,12 @@ def main() -> None:
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = load_model(args.model, device)
-    transform = get_transforms()
 
     with open(args.classes, "r", encoding="utf-8") as f:
         class_map = json.load(f)
+
+    model = load_model(args.model, num_classes=len(class_map), device=device)
+    transform = get_transforms()
 
     for img in args.image:
         label_confs = predict_one(
