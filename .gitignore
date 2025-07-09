@@ -5,3 +5,4 @@ load_dataset.py
 .idea
 Papers
 *.json
+convnext_tiny_in12k.pth
