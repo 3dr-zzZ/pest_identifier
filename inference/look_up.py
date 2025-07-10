@@ -7,7 +7,7 @@ from sys import argv
 MODEL_PATH = "..\\best_convnext_tiny.pth"
 CLASS_MAP_PATH = "..\\class_mapping.json"
 DEVICE = "cude" if torch.cuda.is_available() else "cpu"
-DB_PATH = "..\\database\\schema.sql"
+DB_PATH = "..\\database\\"
 TOPK = 3
 
 
@@ -18,12 +18,18 @@ with open(CLASS_MAP_PATH, "r", encoding="utf-8") as f:
 model = inference.load_model(MODEL_PATH, num_class = len(class_map), device = DEVICE)
 transform = inference.get_transform()
 
-# ------ open database ------
+# ------ load database ------
 
 
-# ------ make a inference ------
+# ------ look up in db ------
 def look_up(scientific_name: str) -> dict|None:
-        """Look up species w/ scientific_name in the database."""
+    """Look up species w/ scientific_name in the database."""
+
+# ------ format result ------
+def format_db_output(db_output: dict|None) -> str:
+    """Format the output from db for better readability."""
+    if db_output is None:
+        return "数据库尚未收录该物种"
 
 def main():
     IMG_PATH = argv[0]
@@ -38,7 +44,8 @@ def main():
 
     for i in range(len(lbls)):
         scientific_name = "_".join(lbls[i].split()[-2:])
-        # TODO: add the format in db look up.
+        format_db_output(look_up(scientific_name))  # look up and format the result
+        print("\n")
         
 
     
