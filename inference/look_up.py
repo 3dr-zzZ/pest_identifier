@@ -40,7 +40,7 @@ def main():
         lbls.append(lbl.replace("_", " "))
         confs.append(confs)
         pairs = [f"{lbl} (confidence={conf:.2%})"]
-    print(f"{IMG_PATH}: " + ", ".join(pairs))
+        print(f"{IMG_PATH}: " + ", ".join(pairs))
 
     for i in range(len(lbls)):
         scientific_name = "_".join(lbls[i].split()[-2:])
