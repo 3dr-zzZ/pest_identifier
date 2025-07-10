@@ -1,8 +1,13 @@
-dataset
+dataset/*
 taxonomy.csv
 load_dataset.py
 .DS_Store
 .idea
 Papers
+*.jpg
 *.json
 *.pth
+
+!dataset/download_image.py
+!dataset/extract_label.py
+!dataset/classes.txt
