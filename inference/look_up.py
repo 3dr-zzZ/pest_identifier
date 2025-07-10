@@ -6,7 +6,7 @@ from sys import argv
 # ------ configuration ------
 MODEL_PATH = "..\\best_convnext_tiny.pth"
 CLASS_MAP_PATH = "..\\class_mapping.json"
-DEVICE = "cude" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DB_PATH = "..\\database\\schema.sql"
 TOPK = 3
 
@@ -15,8 +15,8 @@ TOPK = 3
 # ------ load model ------
 with open(CLASS_MAP_PATH, "r", encoding="utf-8") as f:
         class_map = json.load(f)
-model = inference.load_model(MODEL_PATH, num_class = len(class_map), device = DEVICE)
-transform = inference.get_transform()
+model = inference.load_model(MODEL_PATH, num_classes = len(class_map), device = DEVICE)
+transform = inference.get_transforms()
 
 # ------ open database ------
 
@@ -26,7 +26,7 @@ def look_up(scientific_name: str) -> dict|None:
         """Look up species w/ scientific_name in the database."""
 
 def main():
-    IMG_PATH = argv[0]
+    IMG_PATH = argv[1]
     label_confs = inference.predict_one(IMG_PATH, model, transform, class_map, DEVICE, TOPK)
     lbls = []
     confs = []
