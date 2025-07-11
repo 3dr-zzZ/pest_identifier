@@ -16,14 +16,18 @@ TOPK = 3
 
 
 # ------ load model ------
+print(f"Loading model: {MODEL_PATH}")
 with open(CLASS_MAP_PATH, "r", encoding="utf-8") as f:
         class_map = json.load(f)
 model = predict.load_model(MODEL_PATH, num_classes = len(class_map), device = DEVICE)
 transform = predict.get_transforms()
+print("Successfully loaded model.")
 
 # ------ load database ------
+print(f"Loading database: {DB_PATH}")
 con = look_up.load_database(DB_PATH)
 cur = con.cursor()
+print("Successfully loaded database.\n")
 
 
 if __name__ == "__main__":
