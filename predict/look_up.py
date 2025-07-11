@@ -80,7 +80,7 @@ def look_up(scientific_name: str, cur: sqlite3.Cursor) -> dict|None:
     
 
 # ------ format result ------
-def format_db_output(db_output: dict|None) -> str:
+def format_db_output(db_output: dict|None) -> None:
     """Format the output from db for better readability."""
     if db_output is None:
         return
