@@ -5,34 +5,28 @@ CREATE TABLE "species" (
     "other_name"        TEXT,  -- 物种中文俗名
     "traits"            TEXT,  -- 物种鉴别特征
     PRIMARY KEY("id")
-)
+);
 
 CREATE TABLE "taxonomies" (
     "id"            INTEGER,
     "name"          TEXT UNIQUE,
     "chinese_name"  TEXT UNIQUE,
-    "type"          NOT NULL CHECK("type" IN 'phylum', 'class', 'order', 'family', 'genus')
+    "type"          NOT NULL CHECK("type" IN ('phylum', 'class', 'order', 'family', 'genus')),
     PRIMARY KEY("id")
-)
+);
 
 CREATE TABLE "diseases" (
     "id"        INTEGER,
-    "name"      TEXT NOT NULL UNIQUE,
+    "name"      TEXT UNIQUE,
     "symptoms"  TEXT,  -- 疾病症状
     PRIMARY KEY("id")
-)
+);
 
 CREATE TABLE "locations" (
     "id"       INTEGER,
-    "name"     TEXT NOT NULL UNIQUE,
+    "name"     TEXT UNIQUE,
     "type"     TEXT NOT NULL CHECK("type" IN ('province', 'country', 'region')),
     PRIMARY KEY("id")
-)
-
-CREATE TABLE "controls" (  -- 虫害控制措施
-    "id"          INTEGER PRIMARY KEY,
-    "label"       TEXT UNIQUE NOT NULL,   -- "杀虫喷雾"
-    "description" TEXT
 );
 
 CREATE TABLE "references" (
@@ -60,7 +54,7 @@ CREATE TABLE "belongs"(
     PRIMARY KEY("species_id", "taxonomy_id"),
     FOREIGN KEY("species_id") REFERENCES "species"("id") ON DELETE CASCADE,
     FOREIGN KEY("taxonomy_id") REFERENCES "taxonomies"("id") ON DELETE CASCADE
-)
+);
 
 CREATE TABLE "distributed"(
     "species_id"  INTEGER,
@@ -68,7 +62,7 @@ CREATE TABLE "distributed"(
     PRIMARY KEY("species_id", "location_id"),
     FOREIGN KEY("species_id") REFERENCES "species"("id") ON DELETE CASCADE,
     FOREIGN KEY("location_id") REFERENCES "locations"("id") ON DELETE CASCADE
-)
+);
 
 CREATE TABLE "carries"(
     "species_id" INTEGER,
@@ -76,22 +70,14 @@ CREATE TABLE "carries"(
     PRIMARY KEY("species_id", "disease_id"),
     FOREIGN KEY("species_id") REFERENCES "species"("id") ON DELETE CASCADE,
     FOREIGN KEY("disease_id") REFERENCES "diseases"("id")ON DELETE CASCADE
-)
-
-CREATE TABLE "species_control" (
-    "species_id"  INTEGER,
-    "control_id"  INTEGER,
-    "efficacy"    REAL,   -- optional 0–1
-    PRIMARY KEY ("species_id", "control_id"),
-    FOREIGN KEY ("species_id") REFERENCES "species"("id")   ON DELETE CASCADE,
-    FOREIGN KEY ("control_id") REFERENCES "controls"("id")  ON DELETE CASCADE
 );
+
 
 CREATE TABLE "species_reference" (
     "species_id"    INTEGER,
     "reference_id"  INTEGER,
     "note"          TEXT,
     PRIMARY KEY ("species_id", "reference_id"),
-    FOREIGN KEY ("species_id")   REFERENCES "species"("id") ON DELETE CASCADE,
-    FOREIGN KEY ("reference_id") REFERENCES references("id") ON DELETE CASCADE
+    FOREIGN KEY ("species_id") REFERENCES "species"("id") ON DELETE CASCADE,
+    FOREIGN KEY ("reference_id") REFERENCES "references"("id") ON DELETE CASCADE
 );
