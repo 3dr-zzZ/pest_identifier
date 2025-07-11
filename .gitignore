@@ -10,7 +10,6 @@ Papers/
 load_dataset.py
 
 # extensions
-*.csv
 *.db
 *.jpg
 *.json
