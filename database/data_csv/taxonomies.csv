@@ -1,0 +1,12 @@
+id,name,chinese_name,type
+1,Arthropoda,节肢动物门,phylum
+2,Chordata,脊索动物门,phylum
+3,Insecta,昆虫纲,class
+4,Mammalia,哺乳纲,class
+5,Blattodea,蛮蠊目,order
+6,Diptera,双翅目,order
+7,Rodentia,啮齿目,order
+8,Culicidae,蚊科,family
+9,Muscidae,蝇科,family
+10,Muridae,鼠科,family
+11,Aedes,伊蚊属,genus
