@@ -1,5 +1,5 @@
 import torch, json, sqlite3
-import inference
+import predict
 from sys import argv
 
 
@@ -15,8 +15,8 @@ TOPK = 3
 # ------ load model ------
 with open(CLASS_MAP_PATH, "r", encoding="utf-8") as f:
         class_map = json.load(f)
-model = inference.load_model(MODEL_PATH, num_classes = len(class_map), device = DEVICE)
-transform = inference.get_transforms()
+model = predict.load_model(MODEL_PATH, num_classes = len(class_map), device = DEVICE)
+transform = predict.get_transforms()
 
 # ------ load database ------
 
@@ -33,7 +33,7 @@ def format_db_output(db_output: dict|None) -> str:
 
 def main():
     IMG_PATH = argv[1]
-    label_confs = inference.predict_one(IMG_PATH, model, transform, class_map, DEVICE, TOPK)
+    label_confs = predict.predict_one(IMG_PATH, model, transform, class_map, DEVICE, TOPK)
     lbls = []
     confs = []
     for lbl, conf in label_confs:
