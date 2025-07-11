@@ -27,14 +27,18 @@ TOPK = 3
 
 
 # ------ load model ------
+print(f"Loading model: {MODEL_PATH}")
 with open(CLASS_MAP_PATH, "r", encoding="utf-8") as f:
         class_map = json.load(f)
 model = predict.load_model(MODEL_PATH, num_classes = len(class_map), device = DEVICE)
 transform = predict.get_transforms()
+print("Successfully loaded model.")
 
 # ------ load database ------
+print(f"Loading database: {DB_PATH}")
 con = look_up.load_database(DB_PATH)
 cur = con.cursor()
+print("Successfully loaded database.\n")
 
 
 if __name__ == "__main__":
@@ -56,8 +60,8 @@ if __name__ == "__main__":
     
     print(f"Searching in database: {DB_PATH}")
     for i in range(len(lbls)):
-        scientific_name = "_".join(lbls[i].split()[-2:])
-        print(scientific_name + ":")
+        scientific_name = " ".join(lbls[i].split()[-2:])
+        print(f"{scientific_name}:")
         look_up.format_db_output(look_up.look_up(scientific_name, cur))  # look up and format the result
         print("\n")
     t2 = time.perf_counter()
