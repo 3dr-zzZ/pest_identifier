@@ -45,8 +45,8 @@ if __name__ == "__main__":
     
     print(f"Searching in database: {DB_PATH}")
     for i in range(len(lbls)):
-        scientific_name = "_".join(lbls[i].split()[-2:])
-        print(scientific_name + ":")
+        scientific_name = " ".join(lbls[i].split()[-2:])
+        print(f"{scientific_name}:")
         look_up.format_db_output(look_up.look_up(scientific_name, cur))  # look up and format the result
         print("\n")
     t2 = time.perf_counter()
