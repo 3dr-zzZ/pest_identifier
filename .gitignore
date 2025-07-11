@@ -1,4 +1,5 @@
 dataset/*
+data_csv
 __pycache__
 taxonomy.csv
 load_dataset.py
@@ -8,6 +9,7 @@ Papers
 *.jpg
 *.json
 *.pth
+*.db
 
 !dataset/download_image.py
 !dataset/extract_label.py
