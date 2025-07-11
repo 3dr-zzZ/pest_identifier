@@ -1,10 +1,16 @@
-"""inference.py
-Minimal command‑line helper to apply your fine‑tuned PyTorch image‑classification
-model to one or more new images.
+"""predict.py
+A library including functions to load image classification model and make prediction.
 
-Example
--------
-$ python inference.py path/to/image.jpg --model path/to/model.pth --classes classes.json --topk 3
+Example:
+    $ python predict.py path/to/image.jpg --model path/to/model.pth --classes classes.json --topk 3
+
+Functions:
+    load_model(): function to load image classification model.
+    get_transforms(): function to get transforms.
+    predict_one(): make prediction on an image.
+    main()
+
+Author: 3dr-zzZ
 """
 
 import argparse
