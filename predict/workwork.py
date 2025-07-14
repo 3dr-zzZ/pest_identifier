@@ -36,8 +36,7 @@ print("Successfully loaded model.")
 
 # ------ load database ------
 print(f"Loading database: {DB_PATH}")
-con = look_up.load_database(DB_PATH)
-cur = con.cursor()
+cur = look_up.load_database(DB_PATH)
 print("Successfully loaded database.\n")
 
 

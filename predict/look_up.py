@@ -28,8 +28,9 @@ DB_PATH = PROJECT_ROOT/"database"/"pests.db"
 scientific_name = "Aedes albopictus"
 
 # ------ load database ------
-def load_database(path: str|Path) -> sqlite3.Connection:
-    return sqlite3.connect(path)
+def load_database(path: str|Path) -> sqlite3.Cursor:
+    con = sqlite3.connect(path)
+    return con.cursor()
 
 
 # ------ look up in db ------
@@ -117,8 +118,7 @@ def format_db_output(db_output: dict|None) -> None:
     
 
 def main():
-    con = load_database(DB_PATH)
-    cur = con.cursor()
+    cur = load_database(DB_PATH)
 
     print(f"looking for the species: {scientific_name}")
     rslt = look_up(scientific_name, cur)
