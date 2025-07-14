@@ -1,3 +1,14 @@
+"""Perform pest/vector classification on a image, then look for species info in a database.
+
+Example:
+    $ python workwork.py pest_img.jpg
+
+Functions:
+    main()
+
+Author: 3dr-zzZ
+"""
+
 import torch, json
 import predict, look_up
 
@@ -25,8 +36,7 @@ print("Successfully loaded model.")
 
 # ------ load database ------
 print(f"Loading database: {DB_PATH}")
-con = look_up.load_database(DB_PATH)
-cur = con.cursor()
+cur = look_up.load_database(DB_PATH)
 print("Successfully loaded database.\n")
 
 

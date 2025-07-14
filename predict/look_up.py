@@ -1,3 +1,22 @@
+"""A library including functions to load pests database and look up species by the scientific name.
+
+Functions:
+    load_database(): load the database.
+    look_up(): look up species with scientific name in database.
+    format_db_output(): format output from look_up() to make it more readable.
+
+Example usage in other files:
+    >>> PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    >>> DB_PATH = PROJECT_ROOT/"database"/"pests.db"
+    >>> scientific_name = "Aedes albopictus"
+    >>> con = load_database(path = DB_PATH)  # establish a sqlite3 connection
+    >>> cur = con.cursor()
+    >>> format_db_output(look_up(scientific_name = scientific_name, cur = cur))
+    # result will display here
+
+Author: 3dr-zzZ
+"""
+
 import sqlite3
 from pathlib import Path
 from sys import argv
@@ -9,13 +28,18 @@ DB_PATH = PROJECT_ROOT/"database"/"pests.db"
 scientific_name = "Aedes albopictus"
 
 # ------ load database ------
-def load_database(path: str|Path) -> sqlite3.Connection:
-    return sqlite3.connect(path)
+def load_database(path: str|Path) -> sqlite3.Cursor:
+    con = sqlite3.connect(path)
+    return con.cursor()
 
 
 # ------ look up in db ------
 def look_up(scientific_name: str, cur: sqlite3.Cursor) -> dict|None:
-    """Look up species w/ scientific_name in the database."""
+    """Look up species w/ scientific_name in the database.
+    
+    Note: the scientific name has to be the binomial name (e.g. Culex pipiens), 
+    instead of the complete scientific name (e.g. Culex (Culex) pipiens Linnaeus, 1758)
+    """
     # first check if the species is in the database
     species_list = cur.execute("SELECT scientific_name FROM species;")
     species_list = species_list.fetchall()
@@ -94,8 +118,7 @@ def format_db_output(db_output: dict|None) -> None:
     
 
 def main():
-    con = load_database(DB_PATH)
-    cur = con.cursor()
+    cur = load_database(DB_PATH)
 
     print(f"looking for the species: {scientific_name}")
     rslt = look_up(scientific_name, cur)
