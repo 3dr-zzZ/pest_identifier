@@ -77,6 +77,7 @@ def predict_one(
     """Return a list of *(label, confidence)* tuples for the top‑``k`` predictions."""
     image = Image.open(image_path).convert("RGB")
     tensor = transform(image).unsqueeze(0).to(device)
+    print("running on", device)
     logits = model(tensor)
     probs = torch.softmax(logits, dim=1).squeeze(0)
 

@@ -8,6 +8,7 @@ Papers/
 
 # files
 load_dataset.py
+test.py
 
 # extensions
 *.db
