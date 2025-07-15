@@ -6,6 +6,7 @@ __pycache__
 # folders
 Papers/
 dataset/
+predict/
 
 # files
 load_dataset.py
@@ -22,3 +23,6 @@ test.py
 !dataset/classes.txt
 !dataset/download_image.py
 !dataset/extract_label.py
+!predict/look_up.py
+!predict/predict.py
+!predict/workwork.py
