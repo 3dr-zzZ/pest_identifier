@@ -24,10 +24,10 @@ import requests
 from tqdm import tqdm
 
 # 配置
-ROOT_DIR = "/Users/jacksmac/Code/Projects/pest indentifier/dataset/species"  # 文件夹根目录
-LIMIT = 50  # 每个物种下载的图片数量
+ROOT_DIR = "D:\Pest\dataset\download\\root"  # 文件夹根目录
+LIMIT = 60  # 每个物种下载的图片数量
 # 下载图片的输出根目录（与 ROOT_DIR 下的文件夹同名）
-DOWNLOAD_DIR = "/Users/jacksmac/Code/Projects/pest indentifier/dataset/downloads"
+DOWNLOAD_DIR = "D:\Pest\dataset\download"
 
 # 匹配 http/https 开头直到空白结束的简单正则
 URL_RE = re.compile(r"https?://[^\s]+?\.(?:jpg|jpeg|png)", re.IGNORECASE)
