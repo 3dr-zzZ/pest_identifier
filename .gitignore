@@ -5,6 +5,7 @@ __pycache__
 
 # folders
 Papers/
+dataset/
 
 # files
 load_dataset.py
@@ -13,6 +14,7 @@ test.py
 # extensions
 *.db
 *.jpg
+*.jpeg
 *.json
 *.pth
 
