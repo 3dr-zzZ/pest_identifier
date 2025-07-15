@@ -26,8 +26,8 @@ import shutil
 from pathlib import Path
 
 # ============ 用户可修改的配置 ============ #
-INPUT_DIR   = "/Users/jacksmac/Code/Projects/pest indentifier/dataset/downloads"
-OUTPUT_DIR  = "/Users/jacksmac/Code/Projects/pest indentifier/dataset/split"
+INPUT_DIR   = "D:\Pest\dataset\download\downloads"
+OUTPUT_DIR  = "D:\Pest\dataset\download\split"
 TRAIN_RATIO = 0.80          # 训练集比例
 SEED        = 42            # 随机种子（设为 None 则每次不同）
 MOVE_FILES  = False         # True=移动文件；False=复制文件
