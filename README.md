@@ -5,12 +5,14 @@
 ## 目录
   1. 数据库的构建
   2. 模型训练
-  3. 项目收获
+  3. 识别——查询流程
+  4. 项目收获
 
 ## 项目文件结构
 
 ## 1. 数据库的构建
-数据库使用SQLite语言搭建，相关文件均在/database 目录下。
+*---所有数据库相关代码均在/database目录下---*<br><br>
+数据库使用SQLite语言搭建。
 ### 1.1 结构介绍：
 分为四张表以及将其连接的桥表。ER图如下：
 
@@ -29,7 +31,7 @@
 
 ### 1.2 创建数据库：
 **初始化数据库：**
-<br>数据库纲要已编辑好并储存在/database/schema.sql，运行：
+<br>数据库纲要已编辑好并储存在schema.sql，运行：
 ```bash
 sqlite3 pests.db
 .read schema.sql
@@ -37,8 +39,8 @@ sqlite3 pests.db
 即可初始化数据库。
 
 **填充数据：**
-<br>由于使用常规查询语句手动填充数据对于本项目的较大数据量较为困难，因此写了一个脚本/database/csv_to_db.py 简化数据填充流程:
-  1. 在/database/data_csv 中相应名称的csv文件中填写内容。
+<br>由于使用常规查询语句手动填充数据对于本项目的较大数据量较为困难，因此写了一个脚本csv_to_db.py 简化数据填充流程:
+  1. 在data_csv 中相应名称的csv文件中填写内容。
   2. csv_to_db.py 上方配置好路径、表格和模式（replace: 替换, append: 添加）。
   3. 运行脚本即可完成数据填充。
 
@@ -54,7 +56,8 @@ sqlite3 pests.db
  - 数据质量高：由各地公民科学家拍摄和标注，经过专家审核，且带有全面细致的遵循COCO数据集的标注格式 (Van Horn et al.)。
  - 图片信息多：自然条件下观测，背景信息复杂，物种状态各异，符合本项目模型可能的应用场景。
  - 下载便利：GitHub上开源、且PyTorch内置。
-<br>对比但并未选择的数据集： 
+
+对比但并未选择的数据集： 
  - ImageNet虽然十分经典、包含动物图片，但包含过多不相干类别（汽车、飞机等），且其中动物种类并不按照生物学分类区分。
  - IP102虽然同以农业害虫识别为目的，但其中存在标签不严谨（拼写错误、分类层级混乱）问题、且对本项目四类病媒支持较少。
 <br>在iNaturalist Dataset 2021中提取到20种本项目关注的生物：5种蚊子、3种老鼠、4种苍蝇和8种蟑螂，在train_mini中每种有50张图片。
@@ -64,15 +67,17 @@ sqlite3 pests.db
  - 与iNaturalist Dataset同源，保障数据一致性。
  - iNaturalist Dataset优势大部分均有。
  - 下载便利：提供API服务、GBIF有存储支持。
-<br>对比但未选择的动物数据库网站：
+
+对比但未选择的动物数据库网站：
  - Encyclopedia of Life(EOL):汇总全球多来源的生物信息，包括照片、声音、视频；或许适用于多模态场景，但物种照片较少，不适合单一场景下的图像识别任务。
  - 中国动物主题数据库：由中国科学院动物研究所和中国科学院昆明动物研究所主持，包含全面的国内动物数据；但网站缺乏维护，访问较为困难。
 
 **<br>数据下载**
 <br>*开源数据集*
 <br>下载iNaturalist Dataset 2021有两种方式：
-  1. 通过其GitHub repo(https://github.com/visipedia/inat_comp/tree/master/2021 )下载。
-  2. 使用pytorch内置函数下载，详见：https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html#torchvision.datasets.INaturalist
+  1. 通过其[GitHub repo](https://github.com/visipedia/inat_comp/tree/master/2021 )下载。
+  2. 使用[torchvision内置函数下载](https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html#torchvision.datasets.INaturalist
+)
 
 <br>*动物数据库*
 <br>从动物数据库iNaturalist上下载数据也有两种方式：
@@ -90,3 +95,25 @@ sqlite3 pests.db
 <br>
   1. **清洗：** 手动去除数据集中模糊图片和其它不相关图片（老鼠脚印、孑孓、头骨等）。
   2. **划分：** 使用split.py划分为train和val数据集。
+
+### 2.2 模型训练
+本项目采用基于ImageNet预训练的ConvNeXt-tiny进行微调，选择的主要原因是其参数量小、相似参数量模型中表现均衡；试验目的较强，主要为了验证代码运行，并不必须该模型。
+
+模型训练分别使用两种代码：train_model.py和train_torch.py。
+ - train_model.py：使用PyTorch以及timm库，在Chat-GPT o3的协助下编写。
+ - train_torch.py：仅使用PyTorch，以学习为目的自己编写。
+
+**train_model.py**
+整体的训练速度和效果都更优，使用了诸如：冻结骨干网络数轮次以训练新的线性层、CutMix/MixUp、label smoothing等技巧。
+以下是在小规模数据（iNaturalist Dataset 2021中20种物种）上训练的记录：
+| 次数   | 训练集准确率 | 验证集准确率 | 关键调整 |
+|-------|-------|-------|-------|
+| 第一次 | 99.9%  | 67%    | 默认设置，初始训练 |
+| 第二次 | 97.4%  | 70.5%  | 学习率 3e-4 → 1e-4 |
+| 第三次 | 98.02% | 73.23% | 清洗训练集，移除孑孓、脚印图片等；验证集去除小鼠头骨和高糊图 |
+| 第四次 | 96.25% | 67.68% | 冻结轮数 1 → 3，第 6 轮出现峰值，存在过拟合 |
+| 第五次 | 88.44% | 73.23% | 冻结轮数 3 → 5；添加 label smoothing、CutMix 和 MixUp |
+| 第六次 | 79.69% | 69.19% | 训练轮数 12 → 15，出现提升-平稳-下降趋势；单纯增加训练轮数无明显作用 |
+| 第七次 | 83.44% | 70.2%  | 训练轮数 15 → 12, MixUp alpha 0.2 → 0.1, CutMix alpha 1.0 → 0.5 |
+
+## 3. 识别——查询流程
