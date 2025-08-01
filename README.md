@@ -33,6 +33,7 @@
 ├── train_torch.ipynb          # 使用 PyTorch 自定义训练的 notebook
 
 ├── README.md
+├── LICENSE
 └── .gitignore
 </pre>
 
@@ -194,3 +195,6 @@ python workwork.py <image_path>
 示例：
 
 <img width="648" height="405" alt="image" src="https://github.com/user-attachments/assets/0001cac1-f56a-4bd7-be26-b167b483d11c" />
+
+## 协议
+本项目以个人学习与探索为主要目的，使用 MIT 协议，欢迎任何人参考、借鉴、提出建议或交流想法！
