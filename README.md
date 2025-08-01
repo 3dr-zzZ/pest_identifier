@@ -9,6 +9,33 @@
   4. 项目收获
 
 ## 项目文件结构
+<pre>
+.
+├── database/                  # 数据库模块
+│   ├── data_csv/              # 原始 CSV 数据与相关脚本
+│   ├── csv_to_db.py           # 将 CSV 导入数据库的脚本
+│   ├── queries.sql            # 常用查询语句样例
+│   └── schema.sql             # 数据库结构定义文件
+
+├── dataset/                   # 数据集相关处理
+│   ├── classes.txt            # 类别标签名称
+│   ├── download_image.py      # 下载图像的脚本
+│   ├── download_link.py       # 下载链接提取脚本
+│   ├── extract_label.py       # 标签提取脚本
+│   └── split.py               # 划分训练/验证集
+
+├── predict/                   # 推理与结果查询模块
+│   ├── look_up.py             # 查询数据库信息
+│   ├── predict.py             # 模型推理主脚本
+│   └── workwork.py            # “分类—查询”一体化脚本
+
+├── train_model.ipynb          # 使用 timm 训练模型的 notebook
+├── train_torch.ipynb          # 使用 PyTorch 自定义训练的 notebook
+
+├── README.md
+└── .gitignore
+</pre>
+
 项目地址: [GitHub](https://github.com/3dr-zzZ/pest_identifier/tree/main)
 
 ## 1. 数据库的构建
@@ -152,7 +179,7 @@ python workwork.py <image_path>
 
 刚开始接触项目时，我通过询问AI、查阅百科资料了解了分类对象为“病媒生物”，明确了任务在机器学习和深度学习范畴中属于计算机视觉领域的图像分类问题。随后，我以“病媒（vector）”、“害虫（pest）”、“机器学习（machine learning）”以及“图像分类（image classification）”为关键词进行文献检索与阅读，梳理了当前领域的技术路线，并撰写了简单的综述。
 
-在技术实现方面，我学习并掌握了使用 PyTorch 进行模型训练的基本方法，最初尝试复现 iNaturalist Competition 2021 冠军团队的方案，但因硬件资源有限，转而选择微调一个预训练的小模型。考虑到模型输出可能存在误差，以及真实应用中用户对物种背景信息的需求，我设计并搭建了一个基于 SQLite 的数据库系统，用于存储物种相关信息，并与分类模型模块衔接，构建了一个“识别—查询”一体化的工作流程。在此过程中，我掌握了 SQL 和 Python 在实际任务中的基本应用能力，并通过编写用于数据收集与处理和后续整合流程的脚本，进一步提升了解决实际问题的编程能力。
+在技术实现方面，我学习并掌握了使用 PyTorch 进行模型训练的基本方法，最初尝试复现 iNaturalist Competition 2021 冠军团队的方案，但因硬件资源有限，转而选择微调一个预训练的小模型。考虑到模型输出可能存在误差，以及真实应用中用户对物种背景信息的需求，我设计并搭建了一个基于 SQLite 的数据库系统，用于存储物种相关信息，并与分类模型模块衔接，构建了一个“分类—查询”一体化的工作流程。在此过程中，我掌握了 SQL 和 Python 在实际任务中的基本应用能力，并通过编写用于数据收集与处理和后续整合流程的脚本，进一步提升了解决实际问题的编程能力。
 
 此外，在模型训练中我也意识到了数据对于模型质量至关重要的影响。为了对训练数据的质量和可信度进行评估，我还探索了“数据血缘”和“图像可信度”等相关知识，整理成了以下笔记：
  - [数据血缘](https://www.notion.so/Data-Lineage-2347b3784acb8049ba75f0b5319e3cb2?source=copy_link)
