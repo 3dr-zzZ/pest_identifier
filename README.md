@@ -1,210 +1,241 @@
-# 病媒生物识别与数据库搭建
+# Pest Identification & Database Construction
 
-本项目以个人学习为导向，围绕图像分类模型的训练与数据库系统的构建，尝试实现对常见病媒生物（老鼠、蚊子、蟑螂、苍蝇）共 120 个种类的自动分类与信息查询流程。以下内容记录了在每个阶段中我所完成的工作与学习收获。
+[English](README.md) | [中文](README.zh-CN.md)
 
-**项目流程图：**
+This project is oriented around personal learning and involves training image classification models and building a database system. It aims to automatically classify and retrieve information for 120 common vector species (rats, mosquitoes, cockroaches, and flies). The following documents the work completed and lessons learned at each stage of the project.
 
-  <img width="750" height="352" alt="image" src="https://github.com/user-attachments/assets/b3d52674-66c9-45f6-8244-0ddedf60d896" />
+**Project Flowchart:**  
+<img width="750" height="352" alt="image" src="https://github.com/user-attachments/assets/b3d52674-66c9-45f6-8244-0ddedf60d896" />
 
-**Demo：**
+**Demo:**  
+https://github.com/user-attachments/assets/20c77c18-41e5-46f8-9943-40b57d1db07b  
+_(Note: The high-resolution demo image is available at the bottom of this document.)_
 
-  https://github.com/user-attachments/assets/20c77c18-41e5-46f8-9943-40b57d1db07b
+## Table of Contents
+1. Learning Outcomes  
+2. Database Construction  
+3. Model Training  
+4. Classification–Query Workflow  
 
-_（注：demo的高清完整图片在文档最下方）_
-
-## 目录
-  1. 学习收获
-  2. 数据库的构建
-  3. 模型训练
-  4. 识别—查询流程
-
-## 项目文件结构
+## Project File Structure
 <pre>
 .
-├── database/                  # 数据库模块
-│   ├── data_csv/              # 原始 CSV 数据与相关脚本
-│   ├── csv_to_db.py           # 将 CSV 导入数据库的脚本
-│   ├── queries.sql            # 常用查询语句样例
-│   └── schema.sql             # 数据库结构定义文件
+├── database/                  # Database module
+│   ├── data_csv/              # Raw CSV data and related scripts
+│   ├── csv_to_db.py           # Script to import CSVs into the database
+│   ├── queries.sql            # Sample SQL query statements
+│   └── schema.sql             # Database schema definition
 
-├── dataset/                   # 数据集相关处理
-│   ├── classes.txt            # 类别标签名称
-│   ├── download_image.py      # 下载图像的脚本
-│   ├── download_link.py       # 下载链接提取脚本
-│   ├── extract_label.py       # 标签提取脚本
-│   └── split.py               # 划分训练/验证集
+├── dataset/                   # Dataset processing
+│   ├── classes.txt            # Class label names
+│   ├── download_image.py      # Script to download images
+│   ├── download_link.py       # Script to extract download links
+│   ├── extract_label.py       # Script to extract labels
+│   └── split.py               # Script to split train/val sets
 
-├── predict/                   # 推理与结果查询模块
-│   ├── look_up.py             # 查询数据库信息
-│   ├── predict.py             # 模型推理主脚本
-│   └── workwork.py            # “分类—查询”一体化脚本
+├── predict/                   # Inference and lookup module
+│   ├── look_up.py             # Query species info from database
+│   ├── predict.py             # Main model inference script
+│   └── workwork.py            # Combined "classify + lookup" script
 
-├── train_model.ipynb          # 使用 timm 训练模型的 notebook
-├── train_torch.ipynb          # 使用 PyTorch 自定义训练的 notebook
+├── train_model.ipynb          # Model training notebook using timm
+├── train_torch.ipynb          # Custom model training notebook using PyTorch
 
 ├── README.md
 ├── LICENSE
 └── .gitignore
 </pre>
 
-项目地址: [GitHub](https://github.com/3dr-zzZ/pest_identifier/tree/main)
+Project repository: [GitHub](https://github.com/3dr-zzZ/pest_identifier/tree/main)
 
-## 1. 学习收获
-在本项目的推进过程中，我收获了丰富的知识与技能，并在多个方面得到了实质性的成长。
+## 1. Learning Outcomes
 
-刚开始接触项目时，我通过询问AI、查阅百科资料了解了分类对象为“病媒生物”，明确了任务在机器学习和深度学习范畴中属于计算机视觉领域的图像分类问题。随后，我以“病媒（vector）”、“害虫（pest）”、“机器学习（machine learning）”以及“图像分类（image classification）”为关键词进行文献检索与阅读，梳理了当前领域的技术路线，并撰写了简单的综述。
+Throughout this project, I gained substantial technical skills and knowledge, and achieved meaningful growth across multiple areas.
 
-在项目的后续推进过程中，我也持续通过查阅文献不断拓展和加深对相关领域的理解。为了更系统地理解深度学习的发展脉络和模型架构，我阅读了多篇经典论文，包括 AlexNet、Transformer 和 Swin-Transformer 等。在探索数据血缘方向时，我参考了 IBM 的相关技术网页以及多篇关于数据血缘与机器学习结合的论文，思考其在本项目中评估数据可信度方面的应用可能性。针对图像篡改检测问题，我查阅了相关综述性文献与技术细节论文，以了解不同的检测方法及其背后的算法原理。
+When I first began, I consulted AI and online encyclopedias to understand what “vector organisms” are. I then clarified that the task falls under computer vision, specifically image classification within the fields of machine learning and deep learning. I searched and reviewed literature using keywords like "vector", "pest", "machine learning", and "image classification", and compiled a simple review of technical approaches in this domain.
 
-在技术实现方面，我学习并掌握了使用 PyTorch 进行模型训练的基本方法，最初尝试复现 iNaturalist Competition 2021 冠军团队的方案，但因硬件资源有限，转而选择微调一个预训练的小模型。考虑到模型输出可能存在误差，以及真实应用中用户对物种背景信息的需求，我设计并搭建了一个基于 SQLite 的数据库系统，用于存储物种相关信息，并与分类模型模块衔接，构建了一个“分类—查询”一体化的工作流程。在此过程中，我掌握了 SQL 和 Python 在实际任务中的基本应用能力，并通过编写用于数据收集与处理和后续整合流程的脚本，进一步提升了解决实际问题的编程能力。
+As the project progressed, I continued exploring relevant literature to deepen my understanding. To better grasp the development of deep learning architectures, I studied classic papers including AlexNet, Transformer, and Swin Transformer. For data lineage, I referred to IBM’s technical webpages and papers on integrating lineage with machine learning, exploring how such techniques could help assess the trustworthiness of training data. I also studied survey and technical papers on image tampering detection to learn about detection techniques and their underlying algorithms.
 
-此外，在模型训练中我也意识到了数据对于模型质量至关重要的影响。为了对训练数据的质量和可信度进行评估，我还探索了“数据血缘”和“图像可信度”等相关知识，整理成了以下笔记：
- - [数据血缘](https://www.notion.so/Data-Lineage-2347b3784acb8049ba75f0b5319e3cb2?source=copy_link)
- - [图像可信度](https://www.notion.so/2377b3784acb80ac8c77c66c79ede424?source=copy_link)
+On the implementation side, I learned the fundamentals of model training using PyTorch. I initially attempted to replicate the winning solution of the iNaturalist Competition 2021 but later switched to fine-tuning a smaller pretrained model due to limited hardware. To address potential prediction errors and fulfill users’ need for background information on species, I designed a SQLite-based database system to store species information and linked it to the classification module—creating a full “classify–query” pipeline.
 
-值得一提的是，在项目推进过程中，我也逐步发掘了自己对某些研究方向的兴趣。例如在阅读 Mora, Camilo 等人关于《How many species are there on Earth and in the ocean?》的论文时，我对其通过回归建模“以已知推未知”的思维方式产生了浓厚兴趣。同时，在学习 SQL 和深度学习的过程中，我对课内所学知识有了更深刻的理解——无论是 SQL 查询优化背后的计算机原理，还是深度学习中所涉及的微积分、统计和线性代数。尤其是在深度学习方面，我逐渐意识到模型的可解释性不仅是一个技术挑战，也是一个极具潜力的研究方向，它可能为我们理解模型决策机制、提高模型透明度、学习新知识带来重要突破。
+In doing so, I became proficient in using SQL and Python in practical tasks. I also improved my ability to solve real-world problems by writing scripts for data collection, preprocessing, and system integration.
 
-综上，我在本项目中主要收获了以下三方面能力：
-  1. **文献检索与阅读能力**：能够独立开展关键词搜索、阅读文献并整理综述；
-  2. **跨学科学习能力**：深入了解了计算机视觉（图像分类）、图像篡改检测、数据血缘、深度学习可解释性等前沿领域；
-  3. **技术实践能力提升**：掌握了 SQL、PyTorch 的基本应用，具备了独立完成数据处理、模型训练、数据库搭建和系统整合等工作的能力。
+Additionally, I realized how crucial data quality is for model performance. I explored concepts like "data lineage" and "image credibility" to evaluate the reliability of training data, and compiled these notes:
 
-以下是对工作细节的具体展开。
+- [Data Lineage](https://www.notion.so/Data-Lineage-2347b3784acb8049ba75f0b5319e3cb2?source=copy_link)
+- [Image Credibility](https://www.notion.so/2377b3784acb80ac8c77c66c79ede424?source=copy_link)
 
-## 2. 数据库的构建
-*---此部分相关代码在/database目录下---*<br><br>
-数据库使用SQLite语言搭建。
-### 2.1 结构介绍：
-分为四张表以及将其连接的桥表。ER图如下：
+I also discovered personal research interests along the way. For instance, while reading Mora, Camilo et al.’s *"How many species are there on Earth and in the ocean?"*, I became deeply interested in their regression-based methodology of “inferring the unknown from the known.” Meanwhile, studying SQL and deep learning gave me a more grounded understanding of my coursework—be it the computational foundations of SQL query optimization, or the calculus, statistics, and linear algebra behind deep learning models.
+
+In particular, I came to appreciate how model interpretability is not only a technical challenge, but also a promising research direction. It could significantly enhance transparency, help explain model decisions, and even uncover new knowledge.
+
+In summary, I developed the following core capabilities through this project:
+1. **Literature review and research skills**: Independently searching, reading, and summarizing technical papers  
+2. **Interdisciplinary learning**: Gaining insights into computer vision, image forensics, data lineage, and model interpretability  
+3. **Technical proficiency**: Practical experience with SQL, PyTorch, data processing, model training, database design, and system integration
+
+## 2. Database Construction
+
+*—Related code located in the `/database` directory—*
+
+The database is built using SQLite.
+
+### 2.1 Structure Overview
+
+The schema consists of four core tables and several bridge tables. The ER diagram is shown below:
 
 <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/9fe896ca-8e33-415f-a758-5b25ddfd0299" />
 
-其中，每张表分别存储这些信息：
-  - species: id, 物种学名, 物种中文名, 物种俗名, 物种鉴别特征。
-  - taxonomies: id, 名称, 中文名, 层级（门、纲、目、科、属）。
-  - diseases: id, 名称, 症状。
-  - locations: id, 名称, 类别（省份、国家、区域）。
+Each table stores the following information:
+- `species`: id, scientific name, Chinese name, common name, distinguishing features
+- `taxonomies`: id, name, Chinese name, rank (phylum, class, order, family, genus)
+- `diseases`: id, name, symptoms
+- `locations`: id, name, category (province, country, region)
 
-分多个表格的好处：
-  - 提升一致性：多个物种共用地理位置、分类学、疾病，避免可能的错误拼写问题，节省少量空间（数据量大时更明显）。
-  - 提升查询速度：在进行诸如“某地区分布有哪些物种”的查询时，无需全文检索，加快查询。
-  - 便于存储信息：分表格存储便于存储诸如分类学层级、疾病症状等细分信息。
+**Advantages of using multiple tables:**
+- **Improved consistency**: Reusable entities (e.g., taxonomy, diseases, geographic locations) reduce typos and redundancy
+- **Faster queries**: E.g., to find "species distributed in a given area," the query avoids expensive full-text search
+- **Better structure**: Easier to store nested or hierarchical attributes like taxonomy levels and disease symptoms
 
-### 2.2 创建数据库：
-**初始化数据库：**
-<br>数据库纲要已编辑好并储存在schema.sql，运行：
+### 2.2 Creating the Database
+
+**To initialize the database:**  
+The schema is already defined in `schema.sql`. Run:
+
 ```bash
 sqlite3 pests.db
 .read schema.sql
 ```
-即可初始化数据库。
 
-**填充数据：**
-<br>由于使用常规查询语句手动填充数据对于本项目的较大数据量较为困难，因此写了一个脚本csv_to_db.py 简化数据填充流程:
-  1. 在data_csv 中相应名称的csv文件中填写内容。
-  2. csv_to_db.py 上方配置好路径、表格和模式（replace: 替换, append: 添加）。
-  3. 运行脚本即可完成数据填充。
+**To populate data:**  
+Manually entering records via SQL is time-consuming for larger datasets, so a script `csv_to_db.py` is provided to automate the process:
+1. Fill in the corresponding CSV files in the `data_csv/` folder
+2. Configure the path, table name, and mode (`replace` or `append`) at the top of `csv_to_db.py`
+3. Run the script to import data into the database
 
-## 3. 模型训练
-本节介绍了从训练数据搜集到模型训练的整个过程，也涉及部分数据可靠性检验的内容。
-### 3.1 训练数据集
-*---此部分相关代码在/dataset目录下---*<br><br>
-训练数据集由两部分组成：1）由公开数据集iNaturalist Dataset 2021挑选的20种，2）iNaturalist网站上Research Level的图片补全其余种类。
+## 3. Model Training
 
-**<br>开源数据集**
-<br>选择iNaturalist Dataset作为训练数据集，其优势有：
- - 数据量大：物种分类具体到种，包括10,000种物种，2.7M+张图片。
- - 数据质量高：由各地公民科学家拍摄和标注，经过专家审核，且带有全面细致的遵循COCO数据集的标注格式 (Van Horn et al.)。
- - 图片信息多：自然条件下观测，背景信息复杂，物种状态各异，符合本项目模型可能的应用场景。
- - 下载便利：GitHub上开源、且PyTorch内置。
+This section introduces the entire workflow from data collection to model training, including some steps for evaluating data quality and reliability.
 
-对比但并未选择的数据集： 
- - ImageNet虽然十分经典、包含动物图片，但包含过多不相干类别（汽车、飞机等），且其中动物种类并不按照生物学分类区分。
- - IP102虽然同以农业害虫识别为目的，但其中存在标签不严谨（拼写错误、分类层级混乱）问题、且对本项目四类病媒支持较少。
-<br>在iNaturalist Dataset 2021中提取到20种本项目关注的生物：5种蚊子、3种老鼠、4种苍蝇和8种蟑螂，在train_mini中每种有50张图片。
+### 3.1 Training Dataset
 
-**<br>动物数据库网站**
-<br>在从公开数据集获取了部分数据后，可以通过动物数据网站补全其余物种。对比后依然选择iNaturalist网站作为数据来源，优势有：
- - 与iNaturalist Dataset同源，保障数据一致性。
- - iNaturalist Dataset优势大部分均有。
- - 下载便利：提供API服务、GBIF有存储支持。
+*—Related code located in the `/dataset` directory—*
 
-对比但未选择的动物数据库网站：
- - Encyclopedia of Life(EOL):汇总全球多来源的生物信息，包括照片、声音、视频；或许适用于多模态场景，但物种照片较少，不适合单一场景下的图像识别任务。
- - 中国动物主题数据库：由中国科学院动物研究所和中国科学院昆明动物研究所主持，包含全面的国内动物数据；但网站缺乏维护，访问较为困难。
+The training dataset consists of two parts:  
+1. 20 species selected from the open-source iNaturalist 2021 Dataset  
+2. Images of additional species collected from the iNaturalist website (Research Grade)
 
-**<br>数据下载**
-<br>*开源数据集*
-<br>下载iNaturalist Dataset 2021有两种方式：
-  1. 通过其[GitHub repo](https://github.com/visipedia/inat_comp/tree/master/2021 )下载。
-  2. 使用[torchvision内置函数](https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html#torchvision.datasets.INaturalist
-)下载。
+**Open-source dataset:**  
+The iNaturalist Dataset was chosen due to the following advantages:
+- **Large scale**: Over 10,000 species and 2.7M+ labeled images at the species level
+- **High quality**: Labeled by citizen scientists and verified by experts; adheres to COCO-format standards (Van Horn et al.)
+- **Realistic settings**: Images captured in natural conditions with diverse backgrounds — suitable for real-world application scenarios
+- **Easy access**: Publicly available on GitHub and supported by PyTorch built-ins
 
-<br>*动物数据库*
-<br>从动物数据库iNaturalist上下载数据也有两种方式：
-  1. 通过iNaturalist API请求：使用classes.txt和download_image.py
-     <br>a. 在classes.txt中输入所要下载物种的学名，例如：Culex pipiens。
-     <br>b. 在download_image.py中配置每种物种下载数量和保存路径。
-     <br>c. 运行download_image.py进行下载。
-  2. 通过GBIF保存的物种信息，提取图片链接下载：
-     <br><img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/359d0209-f5f8-49c8-86e8-e11b4f9b517f" />
-     <br>a. 在GBIF上筛选iNaturalist Research-grade Observations和相应物种，下载Darwin Core Archive (含有multimedia)。
-     <br>b. 在download_link.py中配置路径和下载数量。
-     <br>c. 运行download_link.py，脚本自动提取文档中的图片链接下载。
+**Alternative datasets considered but not chosen:**
+- *ImageNet*: Although classic, it contains many irrelevant categories (e.g., vehicles) and lacks strict biological taxonomy
+- *IP102*: Focuses on agricultural pests but suffers from inconsistent labels (misspellings, mixed taxonomic ranks) and limited coverage of the 4 vector types targeted in this project
 
-**<br>数据处理**
-<br>
-  1. **清洗：** 手动去除数据集中模糊图片和其它不相关图片（老鼠脚印、孑孓、头骨等）。
-  2. **划分：** 使用split.py划分为train和val数据集。
+From the iNaturalist 2021 Dataset, 20 relevant species were selected:
+- 5 mosquitoes  
+- 3 rodents  
+- 4 flies  
+- 8 cockroaches  
+Each species has 50 images in the `train_mini` subset.
 
-### 3.2 模型训练
-本项目采用基于ImageNet预训练的ConvNeXt-tiny进行微调，选择的主要原因是其参数量小、相似参数量模型中表现均衡；试验目的较强，主要为了验证代码运行，并不必须该模型。
+**Online image sources:**  
+After extracting partial data from open datasets, the remaining species were supplemented using animal information platforms. iNaturalist was selected again for consistency and convenience:
+- **Same source** as iNaturalist Dataset ensures label and style consistency
+- Inherits all other advantages mentioned above
+- **Convenient API and GBIF support** for retrieval
 
-模型训练分别使用两种代码：train_model.py和train_torch.py。
- - train_model.py：使用PyTorch以及timm库，在Chat-GPT o3的协助下编写。
- - train_torch.py：仅使用PyTorch，以学习为目的自己编写。
+**Other platforms considered but not used:**
+- *Encyclopedia of Life (EOL)*: Offers multimodal content (photos, audio, video), but has limited image data — not ideal for image classification alone
+- *Chinese Animal Thematic Database*: Hosted by the Institute of Zoology, Chinese Academy of Sciences; comprehensive domestic records but outdated and difficult to access
 
-**train_model.py**
-整体的训练速度和效果都更优，并且使用了诸如：冻结骨干网络数轮次以训练新的线性层、CutMix/MixUp、label smoothing等技巧。
-以下是在小规模数据（iNaturalist Dataset 2021中20种物种）上训练的记录：
-| 次数   | 训练集准确率 | 验证集准确率 | 关键调整 |
-|-------|-------|-------|-------|
-| 第一次 | 99.9%  | 67%    | 默认设置，初始训练 |
-| 第二次 | 97.4%  | 70.5%  | 学习率 3e-4 → 1e-4 |
-| 第三次 | 98.02% | 73.23% | 清洗训练集，移除孑孓、脚印图片等；验证集去除小鼠头骨和高糊图 |
-| 第四次 | 96.25% | 67.68% | 冻结轮数 1 → 3，第 6 轮出现峰值，存在过拟合 |
-| 第五次 | 88.44% | 73.23% | 冻结轮数 3 → 5；添加 label smoothing、CutMix 和 MixUp |
-| 第六次 | 79.69% | 69.19% | 训练轮数 12 → 15，出现提升-平稳-下降趋势；单纯增加训练轮数无明显作用 |
-| 第七次 | 83.44% | 70.2%  | 训练轮数 15 → 12, MixUp alpha 0.2 → 0.1, CutMix alpha 1.0 → 0.5 |
+**Image download options:**
 
-## 4. 分类—查询流程
-*---此部分相关代码在/predict目录下---*<br><br>
-为了实现从输入病媒图片到直接输出前几个识别结果的信息，编写了执行数据库相关操作的API、执行图像分类相关操作的API、以及将其整合的脚本。
-### 查询数据库
-查询数据库的相关代码在**look_up.py**中。其中的函数/API包括：
- - load_database(): 加载数据库，返回cursor。
- - look_up(): 通过cursor查询物种，返回相关信息。
- - format_db_output(): 整理look_up()返回的信息，返回字符串。
- - main(): 包含了一个样例。
+*For iNaturalist Dataset 2021*:
+1. Download from [official GitHub repo](https://github.com/visipedia/inat_comp/tree/master/2021)
+2. Use [PyTorch's built-in dataset loader](https://pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html)
 
-### 进行分类
-分类相关代码在**predict.py**中。其中的函数/API包括：
- - load_model(): 加载模型并返回。
- - get_transforms(): 获取transform并返回。
- - predict_one(): 对图片进行预测，返回topk预测。
- - main(): 命令行运行相关代码。
+*For iNaturalist Website data*:
+1. Use iNaturalist API  
+   - a. List scientific names in `classes.txt` (e.g., *Culex pipiens*)  
+   - b. Configure download settings in `download_image.py`  
+   - c. Run `download_image.py`  
+2. Use GBIF archive  
+   <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/359d0209-f5f8-49c8-86e8-e11b4f9b517f" />  
+   - a. Filter Research-grade observations on GBIF and download the Darwin Core Archive  
+   - b. Set paths and limits in `download_link.py`  
+   - c. Run `download_link.py` to extract and download image URLs from the archive
 
-### 整合流程
-通过调用前面封装好的API，**workwork.py**可以实现对于给定图片，输入路径后返回识别结果及物种相关信息的操作。
+**Data processing:**
+1. **Cleaning**: Manually remove blurry or irrelevant images (e.g., rat tracks, larvae, skulls)
+2. **Splitting**: Use `split.py` to divide into training and validation sets
 
-使用：
+### 3.2 Model Training
+
+This project uses a fine-tuned ConvNeXt-Tiny model pretrained on ImageNet. This model was chosen for its small size and balanced performance among lightweight architectures. The primary goal here is experimental — to validate functionality rather than optimize performance.
+
+Two versions of training code are used:
+- `train_model.py`: Written with PyTorch and `timm` library, developed with assistance from ChatGPT (GPT-4 o3)
+- `train_torch.py`: A minimal version built using only PyTorch, written independently for learning purposes
+
+**train_model.py**  
+This script offers better training speed and results. It incorporates techniques such as:
+- Freezing the backbone for a few epochs to train a new linear head
+- Using CutMix and MixUp
+- Label smoothing
+
+Below are training results on the small-scale dataset (20 species from iNaturalist 2021):
+
+| Attempt | Train Accuracy | Val Accuracy | Key Adjustments |
+|---------|----------------|--------------|------------------|
+| 1st     | 99.9%          | 67%          | Default settings, initial training |
+| 2nd     | 97.4%          | 70.5%        | Learning rate changed from 3e-4 to 1e-4 |
+| 3rd     | 98.02%         | 73.23%       | Cleaned dataset (removed blurry, irrelevant images) |
+| 4th     | 96.25%         | 67.68%       | Freeze epochs increased from 1 to 3; overfitting occurred around epoch 6 |
+| 5th     | 88.44%         | 73.23%       | Freeze epochs to 5; added label smoothing, CutMix, and MixUp |
+| 6th     | 79.69%         | 69.19%       | Epochs increased from 12 to 15; plateaued with eventual decline |
+| 7th     | 83.44%         | 70.2%        | Epochs reset to 12; MixUp alpha 0.2 → 0.1; CutMix alpha 1.0 → 0.5 |
+
+## 4. Classification–Query Workflow
+
+*—Related code located in the `/predict` directory—*
+
+To enable end-to-end inference from image input to species information output, I implemented APIs for database querying and image classification, as well as an integrated script that combines both.
+
+### Database Query
+
+Relevant code is in `look_up.py`. Main functions/APIs include:
+- `load_database()`: Loads the database and returns a cursor
+- `look_up()`: Queries the database for species info based on the classification result
+- `format_db_output()`: Formats the returned info as a printable string
+- `main()`: A usage example
+
+### Classification
+
+Relevant code is in `predict.py`. Main functions/APIs include:
+- `load_model()`: Loads the trained model
+- `get_transforms()`: Returns the preprocessing transforms
+- `predict_one()`: Predicts the image label and returns the top-k results
+- `main()`: Command-line entry point
+
+### Integrated Workflow
+
+Using the wrapped APIs, the script `workwork.py` allows you to input an image path and receive both the classification result and associated species information.
+
+**Usage:**
 ```bash
 python workwork.py <image_path>
 ```
 
-示例：
+**Example Output:**
 
 <img width="648" height="405" alt="image" src="https://github.com/user-attachments/assets/0001cac1-f56a-4bd7-be26-b167b483d11c" />
 
-## 协议
-本项目以个人学习与探索为主要目的，使用 MIT 协议，欢迎任何人参考、借鉴、提出建议或交流想法！
+## License
+
+This project is intended for personal learning and exploration. It is licensed under the MIT License.  
+You are welcome to reference, reuse, suggest improvements, or share ideas!
