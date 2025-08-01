@@ -2,11 +2,21 @@
 
 本项目以个人学习为导向，围绕图像分类模型的训练与数据库系统的构建，尝试实现对常见病媒生物（老鼠、蚊子、蟑螂、苍蝇）共 120 个种类的自动分类与信息查询流程。以下内容记录了在每个阶段中我所完成的工作与学习收获。
 
+**项目流程图：**
+
+  <img width="750" height="352" alt="image" src="https://github.com/user-attachments/assets/b3d52674-66c9-45f6-8244-0ddedf60d896" />
+
+**Demo：**
+
+  https://github.com/user-attachments/assets/20c77c18-41e5-46f8-9943-40b57d1db07b
+
+_（注：demo的高清完整图片在文档最下方）_
+
 ## 目录
   1. 学习收获
   2. 数据库的构建
   3. 模型训练
-  4. 识别——查询流程
+  4. 识别—查询流程
 
 ## 项目文件结构
 <pre>
@@ -59,7 +69,7 @@
   2. **跨学科学习能力**：深入了解了计算机视觉（图像分类）、图像篡改检测、数据血缘、深度学习可解释性等前沿领域；
   3. **技术实践能力提升**：掌握了 SQL、PyTorch 的基本应用，具备了独立完成数据处理、模型训练、数据库搭建和系统整合等工作的能力。
 
-以下部分是对具体工作的展开。
+以下是对工作细节的具体展开。
 
 ## 2. 数据库的构建
 *---此部分相关代码在/database目录下---*<br><br>
@@ -70,10 +80,10 @@
 <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/9fe896ca-8e33-415f-a758-5b25ddfd0299" />
 
 其中，每张表分别存储这些信息：
-  - species: id, 物种学名, 物种中文名, 物种俗名, 物种鉴别特征
-  - taxonomies: id, 名称, 中文名, 层级（门、纲、目、科、属）
-  - diseases: id, 名称, 症状
-  - locations: id, 名称, 类别（省份、国家、区域）
+  - species: id, 物种学名, 物种中文名, 物种俗名, 物种鉴别特征。
+  - taxonomies: id, 名称, 中文名, 层级（门、纲、目、科、属）。
+  - diseases: id, 名称, 症状。
+  - locations: id, 名称, 类别（省份、国家、区域）。
 
 分多个表格的好处：
   - 提升一致性：多个物种共用地理位置、分类学、疾病，避免可能的错误拼写问题，节省少量空间（数据量大时更明显）。
@@ -127,8 +137,8 @@ sqlite3 pests.db
 <br>*开源数据集*
 <br>下载iNaturalist Dataset 2021有两种方式：
   1. 通过其[GitHub repo](https://github.com/visipedia/inat_comp/tree/master/2021 )下载。
-  2. 使用[torchvision内置函数下载](https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html#torchvision.datasets.INaturalist
-)
+  2. 使用[torchvision内置函数](https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.INaturalist.html#torchvision.datasets.INaturalist
+)下载。
 
 <br>*动物数据库*
 <br>从动物数据库iNaturalist上下载数据也有两种方式：
