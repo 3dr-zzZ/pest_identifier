@@ -5,17 +5,13 @@
 This project is oriented around personal learning and involves training image classification models and building a database system. It aims to automatically classify and retrieve information for 120 common vector species (rats, mosquitoes, cockroaches, and flies). The following documents the work completed and lessons learned at each stage of the project.
 
 **Project Flowchart:**  
-<img width="750" height="352" alt="image" src="https://github.com/user-attachments/assets/b3d52674-66c9-45f6-8244-0ddedf60d896" />
+<img width="887" height="317" alt="image" src="https://github.com/user-attachments/assets/973c7f60-5c94-46b6-8ec8-4d28d0e8bf51" />
 
 **Demo:**  
-https://github.com/user-attachments/assets/20c77c18-41e5-46f8-9943-40b57d1db07b  
-_(Note: The high-resolution demo image is available at the bottom of this document.)_
 
-## Table of Contents
-1. Learning Outcomes  
-2. Database Construction  
-3. Model Training  
-4. Classification–Query Workflow  
+https://github.com/user-attachments/assets/20c77c18-41e5-46f8-9943-40b57d1db07b  
+
+_(Note: The high-resolution demo image is available at the bottom of this document.)_
 
 ## Project File Structure
 <pre>
@@ -47,6 +43,12 @@ _(Note: The high-resolution demo image is available at the bottom of this docume
 </pre>
 
 Project repository: [GitHub](https://github.com/3dr-zzZ/pest_identifier/tree/main)
+
+## Table of Contents
+1. Learning Outcomes  
+2. Database Construction  
+3. Model Training  
+4. Classification–Query Workflow  
 
 ## 1. Learning Outcomes
 
@@ -140,7 +142,8 @@ From the iNaturalist 2021 Dataset, 20 relevant species were selected:
 - 5 mosquitoes  
 - 3 rodents  
 - 4 flies  
-- 8 cockroaches  
+- 8 cockroaches
+ 
 Each species has 50 images in the `train_mini` subset.
 
 **Online image sources:**  
